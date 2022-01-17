@@ -19,4 +19,6 @@ namespace ECommerceLiteBLL.Repository
     public class CustomerRepo : RepositoryBase<Customer, string> { }
     public class AdminRepo : RepositoryBase<Admin, string> { }
     public class PassiveRepo : RepositoryBase<PassiveUser, string> { }
+
+    //
 }
