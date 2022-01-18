@@ -11,11 +11,11 @@ namespace ECommerceLiteDAL.Migrations
                 "dbo.Admins",
                 c => new
                     {
-                        TcNumber = c.String(nullable: false, maxLength: 11),
+                        TCNumber = c.String(nullable: false, maxLength: 11),
                         UserId = c.String(maxLength: 128),
                         LastActiveTime = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.TcNumber)
+                .PrimaryKey(t => t.TCNumber)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId)
                 .Index(t => t.UserId);
             
@@ -60,11 +60,11 @@ namespace ECommerceLiteDAL.Migrations
                 "dbo.Customers",
                 c => new
                     {
-                        TcNumber = c.String(nullable: false, maxLength: 11),
+                        TCNumber = c.String(nullable: false, maxLength: 11),
                         UserId = c.String(maxLength: 128),
                         LastActiveTime = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.TcNumber)
+                .PrimaryKey(t => t.TCNumber)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId)
                 .Index(t => t.UserId);
             
@@ -84,11 +84,11 @@ namespace ECommerceLiteDAL.Migrations
                 "dbo.PassiveUsers",
                 c => new
                     {
-                        TcNumber = c.String(nullable: false, maxLength: 11),
+                        TCNumber = c.String(nullable: false, maxLength: 11),
                         UserId = c.String(maxLength: 128),
                         LastActiveTime = c.DateTime(nullable: false),
                     })
-                .PrimaryKey(t => t.TcNumber)
+                .PrimaryKey(t => t.TCNumber)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId)
                 .Index(t => t.UserId);
             

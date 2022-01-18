@@ -15,7 +15,7 @@ namespace ECommerceLiteEntity.Models
         [Column(Order =1)]
         [MinLength(11)]
         [StringLength(11,ErrorMessage ="TC Kimlik Numarası 11 haneli olmalıdır.")]
-        public string TcNumber { get; set; }
+        public string TCNumber { get; set; }
         #endregion
 
         #region LastActiveTime

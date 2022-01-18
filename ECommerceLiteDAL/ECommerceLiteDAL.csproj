@@ -85,6 +85,10 @@
     <Compile Include="Migrations\202201171017456_OrderEdited.Designer.cs">
       <DependentUpon>202201171017456_OrderEdited.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202201180708292_PassiveUsersTableUpdated.cs" />
+    <Compile Include="Migrations\202201180708292_PassiveUsersTableUpdated.Designer.cs">
+      <DependentUpon>202201180708292_PassiveUsersTableUpdated.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="MyContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,6 +109,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202201171017456_OrderEdited.resx">
       <DependentUpon>202201171017456_OrderEdited.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202201180708292_PassiveUsersTableUpdated.resx">
+      <DependentUpon>202201180708292_PassiveUsersTableUpdated.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
