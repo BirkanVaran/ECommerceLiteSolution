@@ -4,17 +4,16 @@ using ECommerceLiteBLL.Settings;
 using ECommerceLiteEntity.Enums;
 using ECommerceLiteEntity.IdentityModels;
 using ECommerceLiteEntity.Models;
+using ECommerceLiteEntity.ViewModels;
 using ECommerceLiteUI.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Owin.Security;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using ECommerceLiteEntity.ViewModels;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Owin.Security;
 
 namespace ECommerceLiteUI.Controllers
 {
