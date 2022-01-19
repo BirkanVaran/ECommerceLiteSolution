@@ -310,8 +310,8 @@ namespace ECommerceLiteUI.Controllers
         }
         #endregion
 
-        #region UserProfile
-
+        #region UserProfile - HttpGet | HttpPost
+        [HttpGet]
         [Authorize]
         public ActionResult UserProfile()
         {
@@ -325,7 +325,103 @@ namespace ECommerceLiteUI.Controllers
                 Username = theUser.UserName
             };
             return View(model);
-        } 
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<ActionResult> UserProfile(ProfileViewModel model)
+        {
+            try
+            {
+                var theUser = myUserManager.FindById(HttpContext.User.Identity.GetUserId());
+                if (theUser == null)
+                {
+                    ModelState.AddModelError("", "Kullanıcı bulunamadığı için işlem bulunamıyor.");
+                    return View(model);
+                }
+                theUser.Name = model.Name;
+                theUser.Surname = model.Surname;
+                // TODO: Telefon numarası eklenebilir.;
+                await myUserStore.UpdateAsync(theUser);
+                await myUserStore.Context.SaveChangesAsync();
+                ViewBag.TheResult = "Bilgileriniz güncelleşmiştir";
+                var newModel = new ProfileViewModel()
+                {
+                    Email = theUser.Email,
+                    Name = theUser.Name,
+                    Surname = theUser.Surname,
+                    Username = theUser.UserName
+                };
+                return View(newModel);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Beklenmedik bir hata oluştu!. HATA: " + ex.Message);
+                return View(model);
+
+            }
+
+        }
         #endregion
+
+        #region RecoverPassword - HttpGet | HttpPost
+        [HttpGet]
+        public ActionResult RecoverPassword()
+        {
+            return View();
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> RecoverPassword(ProfileViewModel model)
+        {
+            try
+            {
+                var theUser =
+                    myUserStore.Context.Set<ApplicationUser>()
+                    .FirstOrDefault(x => x.Email == model.Email);
+                if (theUser == null)
+                {
+                    ViewBag.TheResult = "Sistemde böyle bir kullanıcı olmadığı için şifre yenileyemiyoruz. Lütfen önce sisteme kayıt olunuz!";
+                    return View(model);
+                }
+                var randomPassword = CreateRandomNewPassword();
+                await myUserStore.SetPasswordHashAsync(theUser, myUserManager.PasswordHasher.HashPassword(randomPassword));
+                await myUserStore.UpdateAsync(theUser);
+                string siteUrl = Request.Url.Scheme + Uri.SchemeDelimiter + Request.Url.Host +
+                    (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port);
+                await SiteSettings.SendMail(new MailModel()
+                {
+                    To = theUser.Email,
+                    Subject = "ECommerceLite Site - Şifreniz Yenilendi",
+                    Message = $"Merhaba {theUser.Name} {theUser.Surname} <br/>Yeni Şifreniz :<b>{randomPassword}</b>" +
+                    $"Sisteme giriş yapmak için<b><a href='{siteUrl}/Account/Login?email={theUser.Email}'>BURAYA</a></b> tıklayınız."
+                });
+                ViewBag.TheResult = "Email adresinize yeni şifreniz gönderilmiştir";
+                return View();
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.TheResult = "Sistemsel bir hata oluştu. Tekrar deneyiniz.";
+                return View(model);
+                //TODO: ex loglanacak
+            }
+        }
+
+        #endregion
+
+        #region Logout
+        [Authorize]
+        public ActionResult Logout()
+        {
+            HttpContext.GetOwinContext().Authentication.SignOut();
+            return RedirectToAction("Login", "Account");
+        }
+        #endregion
+
     }
 }
