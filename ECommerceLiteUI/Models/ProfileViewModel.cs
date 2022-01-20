@@ -31,10 +31,10 @@ namespace ECommerceLiteUI.Models
         public string Email { get; set; }
         #endregion
 
-        #region OldPassword
-        [Display(Name = "Eski Şifre")]
+        #region CurrentPassword
+        [Display(Name = "Mevut Şifre")]
         [DataType(DataType.Password)]
-        public string OldPassword { get; set; }
+        public string CurrentPassword { get; set; } 
         #endregion
 
         #region NewPassword
@@ -51,7 +51,7 @@ The password's first character must be a letter, it must contain at least 5 char
         [Display(Name = "Yeni Şifre Tekrar")]
         [DataType(DataType.Password)]
         [Compare("NewPassword", ErrorMessage = "Şifreler uyuşmuyor")]
-        public string ConfirmNewPassword { get; set; } 
+        public string ConfirmNewPassword { get; set; }
         #endregion
 
 

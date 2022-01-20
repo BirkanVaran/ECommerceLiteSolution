@@ -69,7 +69,9 @@ namespace ECommerceLiteUI.Controllers
                     Name = model.Name,
                     Surname = model.Surname,
                     Email = model.Email,
-                    ActivationCode = theActivationCode
+                    ActivationCode = theActivationCode,
+                    UserName = model.Email,
+                    PhoneNumber = "05555555555"
                 };
 
                 var theResult = myUserManager.CreateAsync(newUser, model.Password);
@@ -86,7 +88,8 @@ namespace ECommerceLiteUI.Controllers
                     {
                         TCNumber = model.TCNumber,
                         UserId = newUser.Id,
-                        TargetRole = TheIdentityRoles.Customer
+                        TargetRole = TheIdentityRoles.Customer,
+                        LastActiveTime = DateTime.Now
                     };
 
                     myPassiveUserRepo.Insert(newPassiveUser);
@@ -95,7 +98,7 @@ namespace ECommerceLiteUI.Controllers
                     {
                         To = newUser.Email,
                         Subject = "ECommerceLite Site Aktivasyon",
-                        Message = $"Merhaba {newUser.Name} {newUser.Surname}, <br/>Hesabınızı aktifleştirmek için <b><a href='{siteUrl}/Account/Activation?code={theActivationCode}'> Aktivasyon Linki</a></b>'ne tıklayınız."
+                        Message = $"Merhaba {newUser.Name} {newUser.Surname}, <br/>Hesabınızı aktifleştirmek için  <b><a href='{siteUrl}/Account/Activation?code={theActivationCode}'> Aktivasyon Linki</a></b>'ne tıklayınız."
                     });
 
                     return RedirectToAction("Login", "Account", new { email = $"{newUser.Email}" });
@@ -148,6 +151,7 @@ namespace ECommerceLiteUI.Controllers
                         {
                             TCNumber = thePassiveUser.TCNumber,
                             UserId = thePassiveUser.UserId,
+                            LastActiveTime = DateTime.Now
                         };
                         myCustomerRepo.Insert(newCustomer);
                         // Passive tablosundan bu kayıt silinsin.
@@ -267,6 +271,17 @@ namespace ECommerceLiteUI.Controllers
         [HttpGet]
         public ActionResult UpdatePassword()
         {
+            var theUser = myUserManager.FindById(HttpContext.User.Identity.GetUserId());
+            if (theUser != null)
+            {
+                ProfileViewModel model = new ProfileViewModel()
+                {
+                    Name = theUser.Name,
+                    Surname = theUser.Surname,
+                    Email = theUser.Email,
+                    Username = theUser.UserName
+                };
+            }
             return View();
         }
 
@@ -285,7 +300,7 @@ namespace ECommerceLiteUI.Controllers
                 }
 
                 var theUser = myUserManager.FindById(HttpContext.User.Identity.GetUserId());
-                var theCheckUser = myUserManager.Find(theUser.UserName, model.OldPassword);
+                var theCheckUser = myUserManager.Find(theUser.UserName, model.CurrentPassword);
 
                 if (theCheckUser == null)
                 {
@@ -295,8 +310,8 @@ namespace ECommerceLiteUI.Controllers
                 }
 
                 await myUserStore.SetPasswordHashAsync(theUser, myUserManager.PasswordHasher.HashPassword(model.NewPassword));
-                await myUserStore.UpdateAsync(theUser);
-                await myUserStore.Context.SaveChangesAsync();
+                await myUserManager.UpdateAsync(theUser);
+                //await myUserStore.Context.SaveChangesAsync();
                 TempData["PasswordUpdated"] = "Şifreniz başarıyla güncellenmiştir.";
                 HttpContext.GetOwinContext().Authentication.SignOut();
                 return RedirectToAction("Login", "Account", new { email = theUser.Email });
@@ -339,11 +354,16 @@ namespace ECommerceLiteUI.Controllers
                     ModelState.AddModelError("", "Kullanıcı bulunamadığı için işlem bulunamıyor.");
                     return View(model);
                 }
+                if (myUserManager.PasswordHasher.VerifyHashedPassword(theUser.PasswordHash, model.CurrentPassword) == PasswordVerificationResult.Failed)
+                {
+                    ModelState.AddModelError("", "Mevcut şifrenizi yanlış girdiğiniz için bilgilerinizi güncelleyemiyoruz.");
+                    return View(model);
+                }
                 theUser.Name = model.Name;
                 theUser.Surname = model.Surname;
                 // TODO: Telefon numarası eklenebilir.;
-                await myUserStore.UpdateAsync(theUser);
-                await myUserStore.Context.SaveChangesAsync();
+                await myUserManager.UpdateAsync(theUser);
+                //await myUserStore.Context.SaveChangesAsync();
                 ViewBag.TheResult = "Bilgileriniz güncelleşmiştir";
                 var newModel = new ProfileViewModel()
                 {
