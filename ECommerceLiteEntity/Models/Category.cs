@@ -23,7 +23,7 @@ namespace ECommerceLiteEntity.Models
         #endregion
 
         #region Defining ForeignKey - BaseCategoryId
-        public int BaseCategoryId { get; set; }
+        public int? BaseCategoryId { get; set; }
 
         [ForeignKey("BaseCategoryId")]
         public virtual Category BaseCategory { get; set; }
