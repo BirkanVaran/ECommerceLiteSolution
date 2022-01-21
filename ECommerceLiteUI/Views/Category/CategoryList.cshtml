@@ -5,11 +5,10 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h2>Tüm Kategoriler</h2>
-<br />
+
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Kategori Listesi</h3>
+        <a href="/Category/Create" class="btn btn-info">Yeni Kategori Ekle</a>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
@@ -30,15 +29,17 @@
                         <td>@item.CategoryDescription</td>
                         <td>
                             <a href="/Category/Edit/@item.Id" class="btn btn-sm btn-default" style="background-color:orange; margin-right:5px;">Düzenle</a>
-                            <a href="/Category/Delete/@item.Id" class="btn btn-sm btn-default" style="background-color:darkred; color:whitesmoke; margin-right:5px;">Düzenle</a>
-                            <a href="/Category/PruductList/@item.Id" class="btn btn-sm btn-default" style="background-color:yellow; margin-right:5px;">Alt Kategorileri</a>
+                            <a href="/Category/Delete/@item.Id" class="btn btn-sm btn-default" style="background-color:darkred; color:whitesmoke; margin-right:5px;">Sil</a>
+                            <a href="/Category/SubCategoryList/@item.Id" class="btn btn-sm btn-default" style="background-color:yellow; color:darkblue; margin-right:5px;">Alt Kategorileri</a>
                         </td>
                     </tr>
                 }
             </tbody>
             <tfoot>
                 <tr>
-                    <th>Test Footer</th>
+                    <th>Kategori Adı</th>
+                    <th>Kategori Açıklaması</th>
+                    <th>İşlemler</th>
 
                 </tr>
             </tfoot>
