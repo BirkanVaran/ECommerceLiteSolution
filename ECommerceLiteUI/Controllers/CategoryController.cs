@@ -32,14 +32,16 @@ namespace ECommerceLiteUI.Controllers
 
         #region Create - HttpGet | HttpPost
 
-        public ActionResult Create(int? id)
+        public ActionResult Create(int? id, bool IsSendFromSubCategory = false)
         {
             if (id!=null)
             {
+                ViewBag.CategoryName = string.Empty;
                 Category model = new Category()
                 {
                     Id = id.Value
                 };
+                ViewBag.CategoryName = myCategoryRepo.GetById(id.Value).CategoryName;
                 return View(model);
             }
             return View();
@@ -70,11 +72,11 @@ namespace ECommerceLiteUI.Controllers
                 int insertResult = myCategoryRepo.Insert(newCategory);
                 if (insertResult > 0 && model.Id==0)
                 {
-                    return RedirectToAction("CategoryList", "Category");
+                    return RedirectToAction("CategoryList", "Category", new { id = model.Id });
                 }
                 else if (insertResult > 0 && model.Id > 0)
                 {
-                    return RedirectToAction("SubCategoryList", "Category");
+                    return RedirectToAction("SubCategoryList", "Category", new { id = model.Id });
 
                 }
                 else

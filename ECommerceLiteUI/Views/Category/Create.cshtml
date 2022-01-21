@@ -10,8 +10,14 @@
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal col-6 offset-3">
-        <h4>Kategori Ekleme</h4>
-        <hr />
+        @if (string.IsNullOrEmpty(ViewBag.CategoryName))
+        {
+            <h4>Yeni Kategori Ekle</h4>
+        }
+        else
+        {
+            <h4><span style="color:red">@ViewBag.CategoryName </span>Kategorisine Yeni Alt Kategori Ekle</h4>
+        }
         @Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
 
