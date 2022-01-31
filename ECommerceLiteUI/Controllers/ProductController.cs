@@ -5,7 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using ECommerceLiteEntity.Models;
 using ECommerceLiteBLL.Repository;
-
+using ECommerceLiteUI.Models;
+using Mapster;
 
 namespace ECommerceLiteUI.Controllers
 {
@@ -20,6 +21,7 @@ namespace ECommerceLiteUI.Controllers
             return View(allProductList);
         }
 
+        #region Create - HttpGet | HttpPost
         [HttpGet]
         public ActionResult Create()
         {
@@ -36,37 +38,36 @@ namespace ECommerceLiteUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Product model)
+        public ActionResult Create(ProductViewModel model)
         {
             try
             {
+                List<SelectListItem> allCategories = new List<SelectListItem>();
+                myCategoryRepo.GetAll().ToList().ForEach(x => allCategories.Add(new SelectListItem()
+                {
+                    Text = x.CategoryName,
+                    Value = x.Id.ToString()
+                }));
+                ViewBag.CategoryList = allCategories;
+
                 if (!ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", "Veri girişleri düzgün olmalıdır.");
+                    ModelState.AddModelError("", "Veriler uygun şekilde girilmedi.");           
                     return View(model);
                 }
+                //
+                Product newProduct = model.Adapt<Product>();
 
-                int insertResult = myProductRepo.Insert(model);
-
-                if (insertResult > 0)
-                {
-                    return RedirectToAction("ProducatList", "Product");
-
-
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Ürün ekleme işleminde bir hata oluştu. Tekrar deneyiniz.");
-                    return View(model);
-                }
             }
             catch (Exception ex)
             {
-
                 ModelState.AddModelError("", "Beklenmedik bir hata oluştu.");
-                // TODO ex loglanacak.
+                // ex loglanacak
                 return View(model);
             }
         }
+
+        #endregion
+
     }
 }
