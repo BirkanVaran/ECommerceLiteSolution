@@ -25,6 +25,12 @@ namespace ECommerceLiteEntity.Models
         public string Description { get; set; }
         #endregion
 
+        #region ProductCode
+        [StringLength(8,ErrorMessage ="Ürün kodunuzun uzunluğu en fazla 8 karakter olmalıdır.")]
+        [Index(IsUnique =true)]
+        public string PruductCode { get; set; }
+        #endregion
+
         #region UnitPrice
         [Required]
         [DataType(DataType.Currency)]
