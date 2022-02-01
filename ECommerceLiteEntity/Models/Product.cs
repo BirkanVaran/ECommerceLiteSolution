@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ECommerceLiteEntity.Models
 {
-    [Table("Pruducts")]
+    [Table("Products")]
    public class Product : TheBase<int>
     {
         
@@ -28,13 +28,13 @@ namespace ECommerceLiteEntity.Models
         #region ProductCode
         [StringLength(8,ErrorMessage ="Ürün kodunuzun uzunluğu en fazla 8 karakter olmalıdır.")]
         [Index(IsUnique =true)]
-        public string PruductCode { get; set; }
+        public string ProductCode { get; set; }
         #endregion
 
-        #region UnitPrice
+        #region Price
         [Required]
         [DataType(DataType.Currency)]
-        public decimal UnitPrice { get; set; }
+        public decimal Price { get; set; }
         #endregion
 
         #region Quantity

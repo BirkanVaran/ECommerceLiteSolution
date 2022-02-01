@@ -7,6 +7,8 @@ using ECommerceLiteEntity.Models;
 using ECommerceLiteBLL.Repository;
 using ECommerceLiteUI.Models;
 using Mapster;
+using ECommerceLiteBLL.Settings;
+using System.IO;
 
 namespace ECommerceLiteUI.Controllers
 {
@@ -15,6 +17,7 @@ namespace ECommerceLiteUI.Controllers
         // GLOBAL ALAN
         ProductRepo myProductRepo = new ProductRepo();
         CategoryRepo myCategoryRepo = new CategoryRepo();
+        ProductPictureRepo myProductPictureRepo = new ProductPictureRepo();
         public ActionResult ProductList()
         {
             var allProductList = myProductRepo.GetAll();
@@ -52,12 +55,85 @@ namespace ECommerceLiteUI.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", "Veriler uygun şekilde girilmedi.");           
+                    ModelState.AddModelError("", "Veriler uygun şekilde girilmedi.");
                     return View(model);
                 }
-                //
+                // Mapleme yapıldı.
                 Product newProduct = model.Adapt<Product>();
+                int insertResult = myProductRepo.Insert(newProduct);
 
+                if (insertResult > 0)
+                {
+                    // Ürün fotoğrafları da eklensin.
+                    if (model.Files.Any())
+                    {
+                        ProductPicture productPicture = new ProductPicture();
+                        productPicture.ProductId = newProduct.Id;
+                        productPicture.RegisterDate = DateTime.Now;
+                        int counter = 1;
+                        foreach (var item in model.Files)
+                        {
+                            if (item != null && item.ContentType.Contains("image") && item.ContentLength > 0)
+                            {
+
+                                string filename = SiteSettings.UrlFormatConverter(model.ProductName).ToLower().Replace("-", "");
+                                string extName = Path
+                                    .GetExtension(item.FileName);
+
+                                string guid = Guid.NewGuid()
+                                    .ToString().Replace("-", "");
+                                var directoryPath = Server.MapPath($"~/ProductPictures/{filename}/{model.ProductCode}");
+                                var filePath = Server.MapPath($"~/ProductPictures/{filename}/{model.ProductCode}/") + filename + counter + "-" + guid + extName;
+                                if (!Directory.Exists(directoryPath))
+                                {
+                                    Directory.CreateDirectory(directoryPath);
+                                }
+                                item.SaveAs(filePath);
+                                if (counter == 1)
+                                {
+                                    productPicture.ProductPicture1 = $"/ProductPictures/{filename}/{model.ProductCode}/" + filename + counter + "-" + guid + extName;
+                                }
+                                if (counter == 2)
+                                {
+                                    productPicture.ProductPicture2 = $"/ProductPictures/{filename}/{model.ProductCode}/" + filename + counter + "-" + guid + extName;
+                                }
+                                if (counter == 3)
+                                {
+                                    productPicture.ProductPicture3= $"/ProductPictures/{filename}/{model.ProductCode}/" + filename + counter + "-" + guid + extName;
+                                }
+                                if (counter == 4)
+                                {
+                                    productPicture.ProductPicture4 = $"/ProductPictures/{filename}/{model.ProductCode}/" + filename + counter + "-" + guid + extName;
+                                }
+                                if (counter == 5)
+                                {
+                                    productPicture.ProductPicture5 = $"/ProductPictures/{filename}/{model.ProductCode}/" + filename + counter + "-" + guid + extName;
+                                }
+                            }
+                            counter++;
+                        }
+
+                        int pictureInsertResult = myProductPictureRepo.Insert(productPicture);
+                        if (pictureInsertResult>0)
+                        {
+                            return RedirectToAction("ProductList", "Product");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", "Ürün eklendi. Fakat ürüne ait fotoğraflar eklenemedi. Tekrar deneyiniz.");
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        return RedirectToAction("ProductList", "Product");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Ürün ekleme işleminde bir hata oluştu. Tekrar deneyiniz.");
+                    return View(model);
+                }
             }
             catch (Exception ex)
             {
