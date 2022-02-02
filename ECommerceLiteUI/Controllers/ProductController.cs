@@ -9,6 +9,7 @@ using ECommerceLiteUI.Models;
 using Mapster;
 using ECommerceLiteBLL.Settings;
 using System.IO;
+using PagedList;
 
 namespace ECommerceLiteUI.Controllers
 {
@@ -18,10 +19,19 @@ namespace ECommerceLiteUI.Controllers
         ProductRepo myProductRepo = new ProductRepo();
         CategoryRepo myCategoryRepo = new CategoryRepo();
         ProductPictureRepo myProductPictureRepo = new ProductPictureRepo();
-        public ActionResult ProductList()
+        public ActionResult ProductList(int page=1, string search="")
         {
-            var allProductList = myProductRepo.GetAll();
-            return View(allProductList);
+            List<Product> allProductList = new List<Product>();
+            if (string.IsNullOrEmpty(search))
+            {
+                allProductList = myProductRepo.GetAll();
+            }
+            else
+            {
+                allProductList = myProductRepo.Queryable().Where(x => x.ProductName.Contains(search)).ToList();
+            }
+
+            return View(allProductList.ToPagedList(page,3));
         }
 
         #region Create - HttpGet | HttpPost
