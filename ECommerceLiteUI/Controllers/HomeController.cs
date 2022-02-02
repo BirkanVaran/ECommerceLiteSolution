@@ -131,7 +131,7 @@ namespace ECommerceLiteUI.Controllers
                                     Quantity = item.Quantity,
                                     RegisterDate = DateTime.Now
                                 };
-                                
+
                                 if (newOrderDetail.Discount > 0)
                                 {
                                     newOrderDetail.TotalPrice = newOrderDetail.Quantity * (newOrderDetail.ProductPrice - Convert.ToDecimal(newOrderDetail.Discount / 100));
@@ -172,8 +172,12 @@ namespace ECommerceLiteUI.Controllers
                                 {
                                     message += $"<tr><td>{myProductRepo.GetById(item.ProductId).ProductName}</td><td>{item.Quantity}</td><td>{item.TotalPrice}</td></tr>";
                                 }
+                                string siteUrl =
+                       Request.Url.Scheme + Uri.SchemeDelimiter
+                       + Request.Url.Host
+                       + (Request.Url.IsDefaultPort ? "" : ":" + Request.Url.Port);
                                 message += "</table><br/>Siparişinize ait QR kodunuz: <br/>";
-                                message += $"<a href='/Home/Order/{newOrder.Id}'><img src=\"{qrUri}\" height=250px;  width=250px; class='img-thumbnail' /></a>";
+                                message += $"<a href='/Home/Order/{newOrder.Id}'><img src=\"{siteUrl}\" height=250px;  width=250px; class='img-thumbnail' /></a>";
                                 await SiteSettings.SendMail(new MailModel()
                                 {
                                     To = user.Email,
@@ -206,7 +210,7 @@ namespace ECommerceLiteUI.Controllers
             }
         }
 
-        private  async void SendOrderMailWtihQRCode(int id)
+        private async void SendOrderMailWtihQRCode(int id)
         {
             try
             {
@@ -256,10 +260,11 @@ namespace ECommerceLiteUI.Controllers
         {
             try
             {
+                List<OrderDetail> orderDetails = new List<OrderDetail>();
                 if (id > 0)
                 {
                     Order customerOrder = myOrderRepo.GetById(id.Value);
-                    List<OrderDetail> orderDetails = new List<OrderDetail>();
+
                     if (customerOrder != null)
                     {
                         orderDetails = myOrderDetailRepo.Queryable().Where(x => x.OrderId == customerOrder.Id).ToList();
@@ -279,8 +284,20 @@ namespace ECommerceLiteUI.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Ürün bulunamadı! Tekrar deneyiniz.");
-                    return View(new List<OrderDetail>());
+                    // logged in user
+                    var user = MembershipTools.GetUser();
+                    // Customer
+                    var customer = myCustomerRepo.Queryable().FirstOrDefault(x => x.UserId == user.Id);
+                    // orderlar
+                    var orderList = myOrderRepo.Queryable().Where(x => x.CustomerTCNumber == customer.TCNumber).ToList();
+                    orderList = orderList.Where(x => x.RegisterDate >= DateTime.Now.AddMonths(-1)).ToList();
+                    // order details
+                    foreach (var item in orderList)
+                    {
+                        var detailList = myOrderDetailRepo.Queryable().Where(x => x.OrderId == item.Id).ToList();
+                        orderDetails.AddRange(detailList);
+                    }
+                    return View(orderDetails.OrderByDescending(x => x.RegisterDate).ToList());
                 }
             }
             catch (Exception)
