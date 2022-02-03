@@ -38,13 +38,15 @@ namespace ECommerceLiteUI.Controllers
         [HttpGet]
         public ActionResult Create()
         {
-            List<SelectListItem> allCategories = new List<SelectListItem>();
-            myCategoryRepo.GetAll().ToList().ForEach(x => allCategories.Add(new SelectListItem()
-            {
-                Text = x.CategoryName,
-                Value = x.Id.ToString()
-            }));
-            ViewBag.CategoryList = allCategories;
+            List<SelectListItem> subCategories = new List<SelectListItem>();
+            myCategoryRepo.Queryable()
+                .Where(x => x.BaseCategoryId == null)
+                .ToList().ForEach(x => subCategories.Add(new SelectListItem()
+                {
+                    Text = x.CategoryName,
+                    Value = x.Id.ToString()
+                }));
+            ViewBag.CategoryList = subCategories;
 
             return View();
         }
@@ -154,6 +156,20 @@ namespace ECommerceLiteUI.Controllers
         }
 
         #endregion
+
+        public ActionResult CategoryProducts()
+        {
+            try
+            {
+                var list = myCategoryRepo.GetBaseCategoriesProductCount();
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                // yarın düzenleyeceğiz.
+                return View();
+            }
+        }
 
     }
 }

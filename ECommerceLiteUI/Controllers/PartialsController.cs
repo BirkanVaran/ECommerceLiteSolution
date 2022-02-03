@@ -6,17 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using ECommerceLiteBLL.Repository;
 
 namespace ECommerceLiteUI.Controllers
 {
     public class PartialsController : BaseController
     {
+        // GLOBAL ALAN
+        CategoryRepo myCategoryRepo = new CategoryRepo();
+        ProductRepo myProductRepo = new ProductRepo();
+
+
         public PartialViewResult AdminSideBarResult()
         {
             // TODO: Name Surname alınacak.
             TempData["NameSurname"] = "";
             return PartialView("_PartialAdminSideBar");
         }
+
         public PartialViewResult AdminSideBarMenuResult()
         {
             return PartialView("_PartialAdminSideBarMenu");
@@ -43,6 +50,18 @@ namespace ECommerceLiteUI.Controllers
             {
                 return PartialView("_PartialShoppingCart", shoppingCart);
             }
+        }
+
+        public PartialViewResult AdminSideBarCategories()
+        {
+            TempData["AllCategoriesCount"] = myCategoryRepo.Queryable().Where(x => x.BaseCategory == null).ToList().Count;
+            return PartialView("_PartialAdminSideBarCategories");
+        }
+
+        public PartialViewResult AdminSideBarProducts()
+        {
+            TempData["CategoryProductCount"] = myProductRepo.GetAll().Count;
+            return PartialView("_PartialAdminSideBarProducts");
         }
     }
 }
